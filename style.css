@@ -30,6 +30,7 @@ h1 {
   grid-template-rows: auto;
   width: 600px;
   margin-top: 5rem;
+  margin-bottom: 2.5rem;
 }
 
 .field {
@@ -44,6 +45,7 @@ h1 {
   position: absolute;
   top: 5%;
   left: 10%;
+  display: none;
 }
 .test {
   width: 3rem;
@@ -54,4 +56,19 @@ h1 {
 
 .snake {
   background-color: bisque;
+}
+
+.food {
+  background-color: yellowgreen;
+}
+
+.collision-test {
+  background-color: indianred;
+}
+
+.btn {
+  cursor: pointer;
+  margin: auto;
+  padding: 0.5rem;
+  width: 30%;
 }
