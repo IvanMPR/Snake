@@ -45,7 +45,7 @@ h1 {
   position: absolute;
   top: 5%;
   left: 10%;
-  display: none;
+  /* display: none; */
 }
 .test {
   width: 3rem;

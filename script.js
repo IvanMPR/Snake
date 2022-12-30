@@ -11,6 +11,7 @@ const helper = {
     down: BOARD_LENGTH,
   },
   currentDir: 'right',
+  points: 0,
 };
 
 // helper fn
@@ -27,8 +28,21 @@ createBoard();
 // helper fn to avoid typing document.getElementById...
 const field = id => document.getElementById(id);
 
-function snake(array) {
-  array.forEach(id => field(id).classList.add('snake'));
+function drawSnake() {
+  helper.moves.forEach(id => field(id).classList.add('snake'));
+}
+function feedSnake() {
+  const [last] = helper.moves.slice(-1);
+  const food = document.querySelector('.food');
+  if (last === Number(food.getAttribute('id'))) {
+    console.log('hit');
+
+    placeFood();
+
+    helper.moves.push(Number(food.getAttribute('id')));
+
+    helper.points += 100;
+  }
 }
 
 function placeFood() {
@@ -45,29 +59,12 @@ function placeFood() {
   }
   field(randomNum()).classList.add('food');
 }
-
-function collisionDetector() {
-  const [test] = helper.moves.slice(-1);
-  console.log(test);
-  if (document.querySelector('.collision-test')) {
-    document
-      .querySelector('.collision-test')
-      .classList.remove('collision-test');
-  }
-
-  const next = test + helper.dir[helper.currentDir];
-  console.log(next, ' next');
-  field(next).classList.add('collision-test');
-  // document.querySelector('.collision-test').classList.remove('collision-test')
+function collisionCheck() {
+  const [last] = helper.moves.slice(-1);
 }
 
-function activateCollisionDetector() {
-  const [test] = helper.moves.slice(-1);
-  const next = test + helper.dir[helper.currentDir];
-  field(next).classList.add('test');
-}
-// activateCollisionDetector();
 function move(timeStamp) {
+  // document.querySelectorAll('.field').classList.remove('snake', 'food');
   setTimeout(() => {
     // console.log(Math.trunc(timeStamp));
 
@@ -78,9 +75,10 @@ function move(timeStamp) {
     field(first).classList.remove('snake');
     helper.moves.push(last + helper.dir[helper.currentDir]);
     field(helper.moves[helper.moves.length - 1]).classList.add('snake');
-    collisionDetector();
+
+    feedSnake();
     requestAnimationFrame(move);
-  }, 1000);
+  }, 500);
 }
 
 function moveUp(e) {
@@ -107,7 +105,8 @@ addEventListener('keydown', moveLeft);
 addEventListener('keydown', moveRight);
 
 button.addEventListener('click', () => {
-  snake(helper.moves);
+  drawSnake();
   placeFood();
+  feedSnake();
   requestAnimationFrame(move);
 });
