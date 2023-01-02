@@ -3,7 +3,7 @@ const button = document.querySelector('.btn');
 const BOARD_LENGTH = 15;
 
 const helper = {
-  moves: [90, 91, 92, 93, 94, 95],
+  moves: [90, 91, 92, 93, 94],
   dir: {
     right: 1,
     left: -1,
@@ -66,12 +66,19 @@ function drawSnake() {
 //   const [last] = helper.moves.slice(-1);
 // }
 function gameBoundariesCheck(snakeHead) {
-  if (snakeHead + helper.dir[helper.currentDir] < 0) helper.isGameOver = true;
-  if (snakeHead + helper.dir[helper.currentDir] > 225) helper.isGameOver = true;
+  if (snakeHead < 0) helper.isGameOver = true;
+  if (snakeHead > 224) helper.isGameOver = true;
+  if (snakeHead % BOARD_LENGTH === 0 && helper.currentDir === 'right') {
+    field(snakeHead).classList.remove('snake');
+    helper.isGameOver = true;
+  }
+  if (snakeHead % BOARD_LENGTH === 0 && helper.currentDir === 'left') {
+    helper.isGameOver = true;
+  }
 }
+
 function selfCollisionCheck(snakeHead) {
   const snakeBody = helper.moves.slice(0, helper.moves.length - 1);
-  // console.log(snakeBody);
   if (snakeBody.includes(snakeHead)) {
     console.log('collision');
     helper.isGameOver = true;
@@ -79,7 +86,6 @@ function selfCollisionCheck(snakeHead) {
 }
 
 function move(timeStamp) {
-  // document.querySelectorAll('.field').classList.remove('snake', 'food');
   if (!helper.isGameOver) {
     setTimeout(() => {
       // console.log(Math.trunc(timeStamp));
@@ -87,9 +93,10 @@ function move(timeStamp) {
       const first = helper.moves.slice().shift();
       const [last] = helper.moves.slice(-1);
       const next = last + helper.dir[helper.currentDir];
+
       selfCollisionCheck(next);
       gameBoundariesCheck(next);
-      console.log(first, last);
+      console.log('first, last, next', first, last, next);
 
       clearSnake();
       helper.moves.push(next);
@@ -107,6 +114,13 @@ function moveUp(e) {
   if (e.key !== 'ArrowUp' || helper.currentDir === 'down') return;
   console.log('Up');
   helper.currentDir = 'up';
+  const first = helper.moves.slice().shift();
+  const [last] = helper.moves.slice(-1);
+  const next = last + helper.dir[helper.currentDir];
+  clearSnake();
+  helper.moves.push(next);
+  helper.moves.shift(first);
+  drawSnake();
 }
 function moveDown(e) {
   if (e.key !== 'ArrowDown' || helper.currentDir === 'up') return;
