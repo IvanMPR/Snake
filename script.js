@@ -3,7 +3,13 @@ const button = document.querySelector('.btn');
 const BOARD_LENGTH = 15;
 
 const helper = {
-  moves: [90, 91, 92, 93, 94],
+  moves: [
+    [6, 0],
+    [6, 1],
+    [6, 2],
+    [6, 3],
+    [6, 4],
+  ],
   dir: {
     right: 1,
     left: -1,
@@ -14,7 +20,21 @@ const helper = {
   points: 0,
   isGameOver: false,
 };
-
+function makeId() {
+  let html = '';
+  let row = 0;
+  let column = 0;
+  for (let i = 0; i < BOARD_LENGTH; i++) {
+    for (let j = 0; j < BOARD_LENGTH; j++) {
+      html += `<div class="field" data-fieldId="${[i, j]}" id="${[
+        i,
+        j,
+      ]}"></div>`;
+    }
+  }
+  grid.insertAdjacentHTML('beforeend', html.trim());
+}
+makeId();
 // helper fn
 function createBoard() {
   let html = '';
@@ -24,7 +44,7 @@ function createBoard() {
   }
   grid.insertAdjacentHTML('beforeend', html.trim());
 }
-createBoard();
+// createBoard();
 
 // helper fn to avoid typing document.getElementById...
 const field = id => document.getElementById(id);
@@ -32,7 +52,10 @@ function clearSnake() {
   helper.moves.forEach(id => field(id).classList.remove('snake'));
 }
 function drawSnake() {
-  helper.moves.forEach(id => field(id).classList.add('snake'));
+  helper.moves.forEach(id => {
+    console.log(id);
+    field(id).classList.add('snake');
+  });
 }
 // function feedSnake() {
 //   const [last] = helper.moves.slice(-1);
