@@ -10,20 +10,13 @@ const helper = {
     [6, 3],
     [6, 4],
   ],
-  dir: {
-    right: 1,
-    left: -1,
-    up: -BOARD_LENGTH,
-    down: BOARD_LENGTH,
-  },
+
   currentDir: 'right',
   points: 0,
   isGameOver: false,
 };
-function makeId() {
+function createGrid() {
   let html = '';
-  let row = 0;
-  let column = 0;
   for (let i = 0; i < BOARD_LENGTH; i++) {
     for (let j = 0; j < BOARD_LENGTH; j++) {
       html += `<div class="field" data-fieldId="${[i, j]}" id="${[
@@ -34,27 +27,28 @@ function makeId() {
   }
   grid.insertAdjacentHTML('beforeend', html.trim());
 }
-makeId();
-// helper fn
-function createBoard() {
-  let html = '';
-  // square board so length * length
-  for (let i = 0; i < BOARD_LENGTH * BOARD_LENGTH; i++) {
-    html += `<div class="field" data-fieldId="${i}" id="${i}"></div>`;
-  }
-  grid.insertAdjacentHTML('beforeend', html.trim());
-}
-// createBoard();
+createGrid();
+
+// helper fn for moving trough the grid
+const nextField = (r, c, dir) => {
+  return dir === 'right'
+    ? [r, c + 1]
+    : dir === 'left'
+    ? [r, c - 1]
+    : dir === 'up'
+    ? [r - 1, c]
+    : [r + 1, c];
+};
 
 // helper fn to avoid typing document.getElementById...
 const field = id => document.getElementById(id);
+
 function clearSnake() {
-  helper.moves.forEach(id => field(id).classList.remove('snake'));
+  helper.moves.forEach(coords => field(coords).classList.remove('snake'));
 }
 function drawSnake() {
-  helper.moves.forEach(id => {
-    console.log(id);
-    field(id).classList.add('snake');
+  helper.moves.forEach(coords => {
+    field(coords).classList.add('snake');
   });
 }
 // function feedSnake() {
@@ -89,47 +83,51 @@ function drawSnake() {
 //   const [last] = helper.moves.slice(-1);
 // }
 function gameBoundariesCheck(snakeHead) {
-  if (snakeHead < 0) helper.isGameOver = true;
-  if (snakeHead > 224) helper.isGameOver = true;
-  if (snakeHead % BOARD_LENGTH === 0 && helper.currentDir === 'right') {
-    field(snakeHead).classList.remove('snake');
+  if (snakeHead.some(el => el < 0)) {
     helper.isGameOver = true;
+    // add last field after snake plunges into the wall
+    field(helper.moves[0][0]).classList.add('snake');
   }
-  if (snakeHead % BOARD_LENGTH === 0 && helper.currentDir === 'left') {
+
+  if (snakeHead.some(el => el > 14)) {
     helper.isGameOver = true;
+    // add last field after snake plunges into the wall
+    field(helper.moves[0][0]).classList.add('snake');
   }
 }
 
 function selfCollisionCheck(snakeHead) {
   const snakeBody = helper.moves.slice(0, helper.moves.length - 1);
-  if (snakeBody.includes(snakeHead)) {
-    console.log('collision');
-    helper.isGameOver = true;
-  }
+  console.log(snakeHead, snakeBody);
+  snakeBody.forEach(coords => {
+    if (coords.some(el => el[0] === snakeHead[0] && el[1] === snakeHead[1])) {
+      console.log('collision');
+      helper.isGameOver = true;
+    }
+  });
+}
+function moveSnake() {
+  // console.log(Math.trunc(timeStamp));
+  const [row, col] = helper.moves.slice(-1)[0];
+  const next = nextField(row, col, helper.currentDir);
+  selfCollisionCheck(next);
+  gameBoundariesCheck(next);
+  console.log('next', next);
+  clearSnake();
+  helper.moves.push(next);
+  helper.moves.shift(helper.moves[0]);
+  drawSnake();
 }
 
-function move(timeStamp) {
+function gameFlow(timeStamp) {
   if (!helper.isGameOver) {
     setTimeout(() => {
-      // console.log(Math.trunc(timeStamp));
-
-      const first = helper.moves.slice().shift();
-      const [last] = helper.moves.slice(-1);
-      const next = last + helper.dir[helper.currentDir];
-
-      selfCollisionCheck(next);
-      gameBoundariesCheck(next);
-      console.log('first, last, next', first, last, next);
-
-      clearSnake();
-      helper.moves.push(next);
-      helper.moves.shift(first);
-      drawSnake();
-      // feedSnake();
-      requestAnimationFrame(move);
+      // // console.log(Math.trunc(timeStamp));
+      moveSnake();
+      requestAnimationFrame(gameFlow);
     }, 500);
   } else {
-    cancelAnimationFrame(move);
+    cancelAnimationFrame(gameFlow);
   }
 }
 
@@ -137,13 +135,7 @@ function moveUp(e) {
   if (e.key !== 'ArrowUp' || helper.currentDir === 'down') return;
   console.log('Up');
   helper.currentDir = 'up';
-  const first = helper.moves.slice().shift();
-  const [last] = helper.moves.slice(-1);
-  const next = last + helper.dir[helper.currentDir];
-  clearSnake();
-  helper.moves.push(next);
-  helper.moves.shift(first);
-  drawSnake();
+  requestAnimationFrame(moveSnake);
 }
 function moveDown(e) {
   if (e.key !== 'ArrowDown' || helper.currentDir === 'up') return;
@@ -172,5 +164,5 @@ button.addEventListener('click', () => {
   drawSnake();
   // placeFood();
   // feedSnake();
-  requestAnimationFrame(move);
+  requestAnimationFrame(gameFlow);
 });
