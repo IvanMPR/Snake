@@ -9,6 +9,7 @@ const helper = {
     [6, 2],
     [6, 3],
     [6, 4],
+    [6, 5],
   ],
 
   currentDir: 'right',
@@ -85,37 +86,45 @@ function drawSnake() {
 function gameBoundariesCheck(snakeHead) {
   if (snakeHead.some(el => el < 0)) {
     helper.isGameOver = true;
-    // add last field after snake plunges into the wall
+    // add last field to the tail after snake dives into the wall
     field(helper.moves[0][0]).classList.add('snake');
   }
 
   if (snakeHead.some(el => el > 14)) {
     helper.isGameOver = true;
-    // add last field after snake plunges into the wall
+    // add last field to the tail after snake dives into the wall
     field(helper.moves[0][0]).classList.add('snake');
   }
 }
 
 function selfCollisionCheck(snakeHead) {
-  const snakeBody = helper.moves.slice(0, helper.moves.length - 1);
-  console.log(snakeHead, snakeBody);
-  snakeBody.forEach(coords => {
-    if (coords.some(el => el[0] === snakeHead[0] && el[1] === snakeHead[1])) {
-      console.log('collision');
-      helper.isGameOver = true;
-    }
-  });
+  const size = new Set(helper.moves.map(el => String(el))).size;
+  const length = helper.moves.length;
+  // const snakeBody = helper.moves.slice();
+  // console.log(snakeHead, snakeBody);
+  // snakeBody.forEach(coords => {
+  //   console.log(coords);
+  //   if (coords.some(el => el[0] === snakeHead[0] && el[1] === snakeHead[1])) {
+  //     console.log('collision');
+  //     helper.isGameOver = true;
+  //   }
+  // });
+  if (size !== length) {
+    console.log('collision');
+    // field(helper.moves[0][0]).classList.add('snake');
+    helper.isGameOver = true;
+  }
 }
 function moveSnake() {
   // console.log(Math.trunc(timeStamp));
   const [row, col] = helper.moves.slice(-1)[0];
   const next = nextField(row, col, helper.currentDir);
-  selfCollisionCheck(next);
-  gameBoundariesCheck(next);
-  console.log('next', next);
+  // console.log('next', next);
   clearSnake();
   helper.moves.push(next);
   helper.moves.shift(helper.moves[0]);
+  selfCollisionCheck(next);
+  gameBoundariesCheck(next);
   drawSnake();
 }
 
@@ -135,7 +144,6 @@ function moveUp(e) {
   if (e.key !== 'ArrowUp' || helper.currentDir === 'down') return;
   console.log('Up');
   helper.currentDir = 'up';
-  requestAnimationFrame(moveSnake);
 }
 function moveDown(e) {
   if (e.key !== 'ArrowDown' || helper.currentDir === 'up') return;
