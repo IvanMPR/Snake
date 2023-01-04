@@ -49,7 +49,9 @@ function clearSnake() {
 }
 function drawSnake() {
   helper.moves.forEach(coords => {
-    field(coords).classList.add('snake');
+    if (field(coords)) {
+      field(coords).classList.add('snake');
+    }
   });
 }
 // function feedSnake() {
@@ -66,49 +68,32 @@ function drawSnake() {
 //   }
 // }
 
-// function placeFood() {
-//   const fields = Array.from(document.querySelectorAll('.field'))
-//     .filter(el => !el.classList.contains('snake'))
-//     .map(el => Number(el.getAttribute('id')));
+function placeFood() {
+  const fields = Array.from(document.querySelectorAll('.field')).filter(
+    el => !el.classList.contains('snake')
+  );
+  const randomField = Math.floor(Math.random() * fields.length);
+  fields[randomField].classList.add('food');
+}
 
-//   const snakeLength = helper.moves.length;
-//   const availableLength = fields.length - snakeLength;
-//   const randomNum = () => Math.floor(Math.random() * availableLength);
-
-//   if (document.querySelector('.food')) {
-//     document.querySelector('.food').classList.remove('food');
-//   }
-//   field(randomNum()).classList.add('food');
-// }
-// function collisionCheck() {
-//   const [last] = helper.moves.slice(-1);
-// }
 function gameBoundariesCheck(snakeHead) {
   if (snakeHead.some(el => el < 0)) {
     helper.isGameOver = true;
     // add last field to the tail after snake dives into the wall
-    field(helper.moves[0][0]).classList.add('snake');
+    // field(helper.moves[0][0]).classList.add('snake');
   }
 
   if (snakeHead.some(el => el > 14)) {
     helper.isGameOver = true;
     // add last field to the tail after snake dives into the wall
-    field(helper.moves[0][0]).classList.add('snake');
+    // field(helper.moves[0][0]).classList.add('snake');
   }
 }
 
 function selfCollisionCheck(snakeHead) {
   const size = new Set(helper.moves.map(el => String(el))).size;
   const length = helper.moves.length;
-  // const snakeBody = helper.moves.slice();
-  // console.log(snakeHead, snakeBody);
-  // snakeBody.forEach(coords => {
-  //   console.log(coords);
-  //   if (coords.some(el => el[0] === snakeHead[0] && el[1] === snakeHead[1])) {
-  //     console.log('collision');
-  //     helper.isGameOver = true;
-  //   }
-  // });
+
   if (size !== length) {
     console.log('collision');
     // field(helper.moves[0][0]).classList.add('snake');
@@ -122,9 +107,10 @@ function moveSnake() {
   // console.log('next', next);
   clearSnake();
   helper.moves.push(next);
-  helper.moves.shift(helper.moves[0]);
   selfCollisionCheck(next);
+  helper.moves.shift(helper.moves[0]);
   gameBoundariesCheck(next);
+
   drawSnake();
 }
 
@@ -170,7 +156,7 @@ addEventListener('keydown', moveRight);
 
 button.addEventListener('click', () => {
   drawSnake();
-  // placeFood();
+  placeFood();
   // feedSnake();
   requestAnimationFrame(gameFlow);
 });
