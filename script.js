@@ -7,9 +7,6 @@ const helper = {
     [6, 0],
     [6, 1],
     [6, 2],
-    [6, 3],
-    [6, 4],
-    [6, 5],
   ],
 
   currentDir: 'right',
@@ -54,19 +51,11 @@ function drawSnake() {
     }
   });
 }
-// function feedSnake() {
-//   const [last] = helper.moves.slice(-1);
-//   const food = document.querySelector('.food');
-//   if (last === Number(food.getAttribute('id'))) {
-//     console.log('hit');
-
-//     placeFood();
-
-//     helper.moves.push(Number(food.getAttribute('id')));
-
-//     helper.points += 100;
-//   }
-// }
+function isFoodFound() {
+  const last = String(helper.moves.slice(-1)[0]);
+  const food = document.querySelector('.food').getAttribute('id');
+  return last === food;
+}
 
 function placeFood() {
   const fields = Array.from(document.querySelectorAll('.field')).filter(
@@ -102,16 +91,26 @@ function selfCollisionCheck(snakeHead) {
 }
 function moveSnake() {
   // console.log(Math.trunc(timeStamp));
+
   const [row, col] = helper.moves.slice(-1)[0];
   const next = nextField(row, col, helper.currentDir);
-  // console.log('next', next);
-  clearSnake();
-  helper.moves.push(next);
-  selfCollisionCheck(next);
-  helper.moves.shift(helper.moves[0]);
-  gameBoundariesCheck(next);
+  const foodSearch = isFoodFound();
 
-  drawSnake();
+  clearSnake();
+  if (foodSearch) {
+    document.querySelector('.food').classList.remove('food');
+    helper.moves.push(next);
+    selfCollisionCheck(next);
+    gameBoundariesCheck(next);
+    drawSnake();
+    placeFood();
+  } else {
+    helper.moves.push(next);
+    selfCollisionCheck(next);
+    helper.moves.shift(helper.moves[0]);
+    gameBoundariesCheck(next);
+    drawSnake();
+  }
 }
 
 function gameFlow(timeStamp) {
@@ -157,6 +156,5 @@ addEventListener('keydown', moveRight);
 button.addEventListener('click', () => {
   drawSnake();
   placeFood();
-  // feedSnake();
   requestAnimationFrame(gameFlow);
 });
