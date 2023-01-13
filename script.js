@@ -5,54 +5,38 @@ const points = document.querySelector('.points-amount');
 const level = document.querySelector('.level-amount');
 
 const helper = {
-  position: { x: 0, y: 0 },
   points: 0,
-  moves: [
-    { x: 1, y: 7 },
-    { x: 2, y: 7 },
-    { x: 3, y: 7 },
-    { x: 4, y: 7 },
-  ],
-  // isGameOver: true,
+  moves: [{ x: 8, y: 8 }],
+  isGameOver: true,
   level: 2,
   timeSinceLastRender: 0,
-  currentDir: null,
+  currentPoss: null,
+  x: 0,
+  y: 0,
 };
 
-function updateSnake(event) {
-  // copy last snake
-  let copy = helper.moves.slice();
-  // clear old snake
-  helper.moves = [];
-  // create new snake
-  //  all fields except first and last
-  const snakeBody = copy.slice(1, -1);
-  // last field
-  const snakeHead = copy.slice(-1);
-  console.log(snakeHead);
-  let position = { x: snakeHead[0].x, y: snakeHead[0].y };
-  const nextSnakeHeadCoords = e => {
-    return (e.key = 'ArrowUp'
-      ? (position = { x: snakeHead[0].x, y: snakeHead[0].y - 1 })
-      : (e.key = 'ArrowDown'
-          ? (position = { x: snakeHead[0].x, y: snakeHead[0].y + 1 })
-          : (e.key = 'ArrowLeft'
-              ? (position = { x: snakeHead[0].x - 1, y: snakeHead[0].y })
-              : (position = { x: snakeHead[0].x + 1, y: snakeHead[0].y }))));
+function updateSnake() {
+  const snakeHead = helper.moves[helper.moves.length - 1];
+  const newHead = {
+    x: snakeHead.x + helper.currentPoss.x,
+    y: snakeHead.y + helper.currentPoss.y,
   };
-  nextSnakeHeadCoords(event);
-  helper.moves.push(...snakeBody);
-  helper.moves.push(position);
-  // console.log(position, 'POS');
-  // console.log(snakeBody, 'snake body', last, 'last');
-  // console.log('update');
-  // console.log(...last);
+  if (newHead.x < 1 || newHead.x > 15 || newHead.y < 1 || newHead.y > 15) {
+    helper.isGameOver = true;
+    console.log('game over');
+  }
+
+  helper.moves.shift();
+  helper.moves.push(newHead);
+  console.log('update');
+  // helper.position.x = 0;
+  // helper.position.y = 0;
+  // console.log(helper.x, helper.y);
 }
 
 function renderSnake() {
-  // Array.from(document.querySelectorAll('.snake')).forEach(div => {
-  //   div.parentElement.removeChild(div);
-  // });
+  grid.innerHTML = '';
+
   helper.moves.forEach(element => {
     const snakePart = document.createElement('div');
     snakePart.style.gridRowStart = element.y;
@@ -64,9 +48,9 @@ function renderSnake() {
 }
 renderSnake();
 function mainGameLoop(timeStamp) {
+  if (helper.isGameOver) return;
   requestAnimationFrame(mainGameLoop);
-  const secondsSinceLastRender =
-    (timeStamp - helper.timeSinceLastRender) / 1000;
+  const secondsSinceLastRender = (timeStamp - helper.timeSinceLastRender) / 750;
   if (secondsSinceLastRender < 1 / helper.level) return;
   helper.timeSinceLastRender = timeStamp;
   // console.log(timeStamp);
@@ -75,16 +59,58 @@ function mainGameLoop(timeStamp) {
   renderSnake();
 }
 
-// addEventListener('keydown', moveUp);
-addEventListener('keydown', moveDown);
-// addEventListener('keydown', moveLeft);
-// addEventListener('keydown', moveRight);
+function moveUp(e) {
+  if (helper.isGameOver) {
+    helper.isGameOver = false;
+    requestAnimationFrame(mainGameLoop);
+  }
+  if (e.key !== 'ArrowUp') return;
+  helper.currentPoss = { x: 0, y: -1 };
+
+  // if (helper.isGameOver) {
+  //   helper.isGameOver = false;
+  //   requestAnimationFrame(mainGameLoop);
+  // } else {
+  //   if (e.key !== 'ArrowUp' || helper.currentDir === 'down') return;
+  //   console.log('up');
+  // }
+
+  // updateSnake();
+  // renderSnake();
+  // requestAnimationFrame(mainGameLoop);
+}
 function moveDown(e) {
-  if (e.key !== 'ArrowDown' || helper.currentDir === 'up') return;
-  helper.position.y += 1;
+  if (e.key !== 'ArrowDown') return;
+  helper.currentPoss = { x: 0, y: 1 };
+  // updateSnake();
+  // renderSnake();
+
+  // requestAnimationFrame(mainGameLoop);
+}
+function moveLeft(e) {
+  if (e.key !== 'ArrowLeft') return;
+  helper.currentPoss = { x: -1, y: 0 };
+
+  // updateSnake();
+  // renderSnake();
+  // requestAnimationFrame(mainGameLoop);
+}
+function moveRight(e) {
+  if (e.key !== 'ArrowRight') return;
+  helper.currentPoss = { x: 1, y: 0 };
+
+  // updateSnake();
+  // renderSnake();
+
+  // requestAnimationFrame(mainGameLoop);
 }
 
 button.addEventListener('click', () => {
   helper.isGameOver = false;
   requestAnimationFrame(mainGameLoop);
 });
+
+addEventListener('keydown', moveUp);
+addEventListener('keydown', moveDown);
+addEventListener('keydown', moveLeft);
+addEventListener('keydown', moveRight);
