@@ -10,9 +10,8 @@ const helper = {
   isGameOver: true,
   level: 2,
   timeSinceLastRender: 0,
-  currentPoss: null,
-  x: 0,
-  y: 0,
+  currentPoss: { x: 0, y: 0 },
+  start: false,
 };
 
 function updateSnake() {
@@ -60,55 +59,39 @@ function mainGameLoop(timeStamp) {
 }
 
 function moveUp(e) {
+  console.log(e.key);
+  if (e.key !== 'ArrowUp') return;
   if (helper.isGameOver) {
     helper.isGameOver = false;
     requestAnimationFrame(mainGameLoop);
   }
-  if (e.key !== 'ArrowUp') return;
+  if (!helper.isGameOver && helper.currentPoss.y === 1) return;
   helper.currentPoss = { x: 0, y: -1 };
-
-  // if (helper.isGameOver) {
+  // if (e.key === 'ArrowUp' && helper.isGameOver) {
   //   helper.isGameOver = false;
   //   requestAnimationFrame(mainGameLoop);
   // } else {
-  //   if (e.key !== 'ArrowUp' || helper.currentDir === 'down') return;
-  //   console.log('up');
+  //   if (helper.currentPoss.y === 1) return;
+  //   else helper.currentPoss = { x: 0, y: -1 };
   // }
-
-  // updateSnake();
-  // renderSnake();
-  // requestAnimationFrame(mainGameLoop);
 }
 function moveDown(e) {
-  if (e.key !== 'ArrowDown') return;
+  if (e.key !== 'ArrowDown' || helper.currentPoss.y === -1) return;
   helper.currentPoss = { x: 0, y: 1 };
-  // updateSnake();
-  // renderSnake();
-
-  // requestAnimationFrame(mainGameLoop);
 }
 function moveLeft(e) {
-  if (e.key !== 'ArrowLeft') return;
+  if (e.key !== 'ArrowLeft' || helper.currentPoss.x === 1) return;
   helper.currentPoss = { x: -1, y: 0 };
-
-  // updateSnake();
-  // renderSnake();
-  // requestAnimationFrame(mainGameLoop);
 }
 function moveRight(e) {
-  if (e.key !== 'ArrowRight') return;
+  if (e.key !== 'ArrowRight' || helper.currentPoss.x === -1) return;
   helper.currentPoss = { x: 1, y: 0 };
-
-  // updateSnake();
-  // renderSnake();
-
-  // requestAnimationFrame(mainGameLoop);
 }
 
-button.addEventListener('click', () => {
-  helper.isGameOver = false;
-  requestAnimationFrame(mainGameLoop);
-});
+// button.addEventListener('click', () => {
+//   helper.isGameOver = false;
+//   requestAnimationFrame(mainGameLoop);
+// });
 
 addEventListener('keydown', moveUp);
 addEventListener('keydown', moveDown);
