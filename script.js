@@ -45,6 +45,21 @@ function renderSnake() {
   console.log('render');
 }
 renderSnake();
+placeFood();
+function placeFood() {
+  const rows = [];
+  const columns = [];
+  const fieldsWithSnake = Array.from(
+    document.querySelectorAll('.snake')
+  ).forEach(div => {
+    const rowId = Number(div.style.gridRowStart);
+    const columnId = Number(div.style.gridColumnStart);
+    rows.push(rowId);
+    columns.push(columnId);
+  });
+
+  console.log();
+}
 function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
 
