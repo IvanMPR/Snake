@@ -47,18 +47,17 @@ function renderSnake() {
 renderSnake();
 placeFood();
 function placeFood() {
-  const rows = [];
-  const columns = [];
+  const snakeLocations = [];
   const fieldsWithSnake = Array.from(
     document.querySelectorAll('.snake')
   ).forEach(div => {
     const rowId = Number(div.style.gridRowStart);
     const columnId = Number(div.style.gridColumnStart);
-    rows.push(rowId);
-    columns.push(columnId);
+
+    snakeLocations.push([rowId, columnId]);
   });
 
-  console.log();
+  console.log(snakeLocations);
 }
 function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
