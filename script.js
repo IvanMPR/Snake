@@ -6,7 +6,12 @@ const level = document.querySelector('.level-amount');
 
 const helper = {
   points: 0,
-  moves: [{ x: 8, y: 8 }],
+  moves: [
+    { x: 8, y: 8 },
+    { x: 8, y: 9 },
+    { x: 8, y: 10 },
+    { x: 8, y: 11 },
+  ],
   isGameOver: true,
   level: 2,
   timeSinceLastRender: 0,
@@ -31,33 +36,46 @@ function updateSnake() {
   helper.moves.push(newHead);
   // console.log('update');
 }
-
+function createSnakePiece(location, classList) {
+  const snakePart = document.createElement('div');
+  snakePart.style.gridRowStart = location.y;
+  snakePart.style.gridColumnStart = location.x;
+  snakePart.classList.add(classList);
+  grid.appendChild(snakePart);
+}
 function renderSnake() {
   grid.innerHTML = '';
 
   helper.moves.forEach(element => {
-    const snakePart = document.createElement('div');
-    snakePart.style.gridRowStart = element.y;
-    snakePart.style.gridColumnStart = element.x;
-    snakePart.classList.add('snake');
-    grid.appendChild(snakePart);
+    createSnakePiece(element, 'snake');
   });
   console.log('render');
 }
 renderSnake();
 placeFood();
+function randomNumGenerator() {
+  return Math.floor(Math.random() * BOARD_LENGTH) + 1;
+}
 function placeFood() {
-  const snakeLocations = [];
-  const fieldsWithSnake = Array.from(
-    document.querySelectorAll('.snake')
-  ).forEach(div => {
+  const usedFields = [];
+
+  document.querySelectorAll('.snake').forEach(div => {
     const rowId = Number(div.style.gridRowStart);
     const columnId = Number(div.style.gridColumnStart);
-
-    snakeLocations.push([rowId, columnId]);
+    usedFields.push([rowId, columnId]);
   });
 
-  console.log(snakeLocations);
+  console.log(usedFields);
+  const foodX = randomNumGenerator();
+  const foodY = randomNumGenerator();
+  console.log(foodX, foodY);
+  if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
+    console.log('again');
+    placeFood();
+  } else {
+    const result = { x: foodX, y: foodY };
+    createSnakePiece(result, 'food');
+  }
 }
 function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
