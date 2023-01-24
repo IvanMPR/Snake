@@ -3,7 +3,44 @@ const button = document.querySelector('.btn');
 const BOARD_LENGTH = 15;
 const points = document.querySelector('.points-amount');
 const level = document.querySelector('.level-amount');
+// ---------------------------------------------------------- //
+function randomNumGenerator() {
+  return Math.floor(Math.random() * BOARD_LENGTH) + 1;
+}
+// ---------------------------------------------------------- //
+function generateRandomFoodPosition() {
+  const usedFields = [];
 
+  document.querySelectorAll('.snake').forEach(div => {
+    const rowId = Number(div.style.gridRowStart);
+    const columnId = Number(div.style.gridColumnStart);
+    usedFields.push([rowId, columnId]);
+  });
+
+  // console.log(usedFields);
+  const foodX = randomNumGenerator();
+  const foodY = randomNumGenerator();
+  // console.log(foodX, foodY);
+  if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
+    console.log('again');
+    generateRandomFoodPosition();
+  } else {
+    const result = { x: foodX, y: foodY };
+    helper.foodPosition = result;
+    // createPiece(result, 'food');
+  }
+}
+// ---------------------------------------------------------- //
+// snake pieces creation. food is created with same fn but with different classlist assigned
+function createPiece(pieceCoordinates, classList) {
+  const snakePart = document.createElement('div');
+  snakePart.style.gridRowStart = pieceCoordinates.y;
+  snakePart.style.gridColumnStart = pieceCoordinates.x;
+  snakePart.classList.add(classList);
+  grid.appendChild(snakePart);
+}
+// ---------------------------------------------------------- //
+// helper object containing game information
 const helper = {
   points: 0,
   moves: [
@@ -17,7 +54,11 @@ const helper = {
   timeSinceLastRender: 0,
   currentPoss: { x: 0, y: 0 },
   start: false,
+  foodPosition: { x: 0, y: 0 },
 };
+// ---------------------------------------------------------- //
+
+generateRandomFoodPosition();
 
 function updateSnake() {
   const snakeHead = helper.moves[helper.moves.length - 1];
@@ -36,47 +77,19 @@ function updateSnake() {
   helper.moves.push(newHead);
   // console.log('update');
 }
-function createSnakePiece(location, classList) {
-  const snakePart = document.createElement('div');
-  snakePart.style.gridRowStart = location.y;
-  snakePart.style.gridColumnStart = location.x;
-  snakePart.classList.add(classList);
-  grid.appendChild(snakePart);
-}
+
 function renderSnake() {
   grid.innerHTML = '';
 
   helper.moves.forEach(element => {
-    createSnakePiece(element, 'snake');
+    createPiece(element, 'snake');
   });
   console.log('render');
+  createPiece(helper.foodPosition, 'food');
 }
 renderSnake();
-placeFood();
-function randomNumGenerator() {
-  return Math.floor(Math.random() * BOARD_LENGTH) + 1;
-}
-function placeFood() {
-  const usedFields = [];
+// createPiece(helper.foodPosition, 'food');
 
-  document.querySelectorAll('.snake').forEach(div => {
-    const rowId = Number(div.style.gridRowStart);
-    const columnId = Number(div.style.gridColumnStart);
-    usedFields.push([rowId, columnId]);
-  });
-
-  console.log(usedFields);
-  const foodX = randomNumGenerator();
-  const foodY = randomNumGenerator();
-  console.log(foodX, foodY);
-  if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
-    console.log('again');
-    placeFood();
-  } else {
-    const result = { x: foodX, y: foodY };
-    createSnakePiece(result, 'food');
-  }
-}
 function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
 
