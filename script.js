@@ -8,21 +8,25 @@ function randomNumGenerator() {
   return Math.floor(Math.random() * BOARD_LENGTH) + 1;
 }
 // ---------------------------------------------------------- //
-function generateRandomFoodPosition() {
-  const usedFields = [];
-
-  document.querySelectorAll('.snake').forEach(div => {
+function getFieldIds(classList) {
+  const result = [];
+  document.querySelectorAll(`.${classList}`).forEach(div => {
     const rowId = Number(div.style.gridRowStart);
     const columnId = Number(div.style.gridColumnStart);
-    usedFields.push([rowId, columnId]);
+    result.push([rowId, columnId]);
   });
+  return result;
+}
+// ---------------------------------------------------------- //
+function generateRandomFoodPosition() {
+  const usedFields = getFieldIds('snake');
 
   // console.log(usedFields);
   const foodX = randomNumGenerator();
   const foodY = randomNumGenerator();
   // console.log(foodX, foodY);
   if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
-    console.log('again');
+    console.log('AGAIN');
     generateRandomFoodPosition();
   } else {
     const result = { x: foodX, y: foodY };
@@ -45,9 +49,9 @@ const helper = {
   points: 0,
   moves: [
     { x: 8, y: 8 },
-    { x: 8, y: 9 },
-    { x: 8, y: 10 },
-    { x: 8, y: 11 },
+    // { x: 8, y: 9 },
+    // { x: 8, y: 10 },
+    // { x: 8, y: 11 },
   ],
   isGameOver: true,
   level: 2,
@@ -66,11 +70,28 @@ function updateSnake() {
     x: snakeHead.x + helper.currentPoss.x,
     y: snakeHead.y + helper.currentPoss.y,
   };
-  console.log(newHead, 'newHead');
+  // console.log(newHead, 'newHead');
   if (newHead.x < 1 || newHead.x > 15 || newHead.y < 1 || newHead.y > 15) {
     helper.isGameOver = true;
     console.log('game over');
     return;
+  }
+  const usedFields = getFieldIds('snake');
+  // console.log(usedFields, newHead, 'testing');
+  if (
+    usedFields.some(
+      position => position[1] === newHead.x && position[0] === newHead.y
+    )
+  ) {
+    console.log('COLLISION');
+  }
+  if (
+    helper.foodPosition.x === newHead.x &&
+    helper.foodPosition.y === newHead.y
+  ) {
+    console.log('FOOD');
+    helper.moves.push(helper.foodPosition);
+    generateRandomFoodPosition();
   }
 
   helper.moves.shift();
@@ -84,7 +105,7 @@ function renderSnake() {
   helper.moves.forEach(element => {
     createPiece(element, 'snake');
   });
-  console.log('render');
+  // console.log('render');
   createPiece(helper.foodPosition, 'food');
 }
 renderSnake();
@@ -110,7 +131,7 @@ function nextFrame() {
   requestAnimationFrame(mainGameLoop);
 }
 function moveUp(e) {
-  console.log(e.key);
+  // console.log(e.key);
   if (e.key !== 'ArrowUp') return;
   if (helper.isGameOver) {
     helper.isGameOver = false;
