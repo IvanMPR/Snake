@@ -21,7 +21,6 @@ function getFieldIds(classList) {
 function generateRandomFoodPosition() {
   const usedFields = getFieldIds('snake');
 
-  // console.log(usedFields);
   const foodX = randomNumGenerator();
   const foodY = randomNumGenerator();
   // console.log(foodX, foodY);
@@ -42,6 +41,13 @@ function createPiece(pieceCoordinates, classList) {
   snakePart.style.gridColumnStart = pieceCoordinates.x;
   snakePart.classList.add(classList);
   grid.appendChild(snakePart);
+}
+// ---------------------------------------------------------- //
+function displayScore() {
+  points.textContent = helper.points;
+}
+function displayLevel() {
+  level.textContent = helper.level - 1;
 }
 // ---------------------------------------------------------- //
 // helper object containing game information
@@ -65,26 +71,31 @@ const helper = {
 generateRandomFoodPosition();
 
 function updateSnake() {
+  // current snake head
   const snakeHead = helper.moves[helper.moves.length - 1];
+  // next snake head
   const newHead = {
     x: snakeHead.x + helper.currentPoss.x,
     y: snakeHead.y + helper.currentPoss.y,
   };
-  // console.log(newHead, 'newHead');
+  // board edges check
   if (newHead.x < 1 || newHead.x > 15 || newHead.y < 1 || newHead.y > 15) {
     helper.isGameOver = true;
     console.log('game over');
     return;
   }
+  // self collision check (getFieldsIds is helper function that returns all coordinates of the fields occupied with the snake)
   const usedFields = getFieldIds('snake');
-  // console.log(usedFields, newHead, 'testing');
+
   if (
     usedFields.some(
       position => position[1] === newHead.x && position[0] === newHead.y
     )
   ) {
     console.log('COLLISION');
+    helper.isGameOver = true;
   }
+  // get food check
   if (
     helper.foodPosition.x === newHead.x &&
     helper.foodPosition.y === newHead.y
@@ -92,11 +103,11 @@ function updateSnake() {
     console.log('FOOD');
     helper.moves.push(helper.foodPosition);
     generateRandomFoodPosition();
+    helper.points += 100;
   }
-
+  // update snake - clear snake tail (shift) - add new snake head (push newHead)
   helper.moves.shift();
   helper.moves.push(newHead);
-  // console.log('update');
 }
 
 function renderSnake() {
@@ -105,11 +116,13 @@ function renderSnake() {
   helper.moves.forEach(element => {
     createPiece(element, 'snake');
   });
-  // console.log('render');
+
   createPiece(helper.foodPosition, 'food');
+  displayScore();
+  displayLevel();
 }
+// call for initial snake render
 renderSnake();
-// createPiece(helper.foodPosition, 'food');
 
 function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
@@ -118,8 +131,7 @@ function mainGameLoop(timeStamp) {
   const secondsSinceLastRender = (timeStamp - helper.timeSinceLastRender) / 400;
   if (secondsSinceLastRender < 1 / helper.level) return;
   helper.timeSinceLastRender = timeStamp;
-  // console.log(timeStamp);
-  // console.log(secondsSinceLastRender);
+
   updateSnake();
   renderSnake();
 }
