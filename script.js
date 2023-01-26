@@ -47,24 +47,27 @@ function displayScore() {
   points.textContent = helper.points;
 }
 function displayLevel() {
-  level.textContent = helper.level - 1;
+  if (helper.points % 2000 === 0 && helper.points > 0) {
+    helper.level += 0.6;
+    helper.points += 500;
+    level.textContent = Math.ceil(helper.level - 1);
+  } else {
+    // helper.level++;
+    level.textContent = Math.ceil(helper.level - 1);
+  }
 }
 // ---------------------------------------------------------- //
 // helper object containing game information
 const helper = {
   points: 0,
-  moves: [
-    { x: 8, y: 8 },
-    // { x: 8, y: 9 },
-    // { x: 8, y: 10 },
-    // { x: 8, y: 11 },
-  ],
+  moves: [{ x: 8, y: 8 }],
   isGameOver: true,
   level: 2,
   timeSinceLastRender: 0,
   currentPoss: { x: 0, y: 0 },
   start: false,
   foodPosition: { x: 0, y: 0 },
+  test: false,
 };
 // ---------------------------------------------------------- //
 
@@ -95,7 +98,7 @@ function updateSnake() {
     console.log('COLLISION');
     helper.isGameOver = true;
   }
-  // get food check
+  // food check
   if (
     helper.foodPosition.x === newHead.x &&
     helper.foodPosition.y === newHead.y
@@ -186,10 +189,9 @@ function moveRight(e) {
   nextFrame();
 }
 
-// button.addEventListener('click', () => {
-//   helper.isGameOver = false;
-//   requestAnimationFrame(mainGameLoop);
-// });
+button.addEventListener('click', () => {
+  location.reload();
+});
 
 addEventListener('keydown', moveUp);
 addEventListener('keydown', moveDown);
