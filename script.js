@@ -25,7 +25,7 @@ function generateRandomFoodPosition() {
   const foodY = randomNumGenerator();
 
   if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
-    console.log('AGAIN');
+    // console.log('AGAIN');
     generateRandomFoodPosition();
   } else {
     const result = { x: foodX, y: foodY };
@@ -56,14 +56,21 @@ function displayLevel() {
 }
 // ---------------------------------------------------------- //
 function gameOver(msg) {
-  console.log(
-    `Game Over! You ${msg}! You had ${helper.points} points ! Press restart button to play again!`
-  );
+  const html = `
+  <div class="message">
+    <p class="message-info">
+      Game Over! You ${msg}! You had ${helper.points} points ! Press restart button
+                                     to play again!
+    </p>
+  </div>`;
+
+  document.querySelector('body').insertAdjacentHTML('beforeend', html);
 }
 // ---------------------------------------------------------- //
 // helper object containing game information
 const helper = {
   points: 0,
+  // initial placement of snake in the middle of the board
   moves: [{ x: 8, y: 8 }],
   isGameOver: true,
   level: 2,
@@ -88,7 +95,6 @@ function updateSnake() {
     helper.isGameOver = true;
     gameOver('hit the wall');
     removeEventListeners();
-    return;
   }
 
   // self collision check (getFieldsIds is helper function that returns all coordinates of the fields occupied with the snake)
