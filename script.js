@@ -23,14 +23,13 @@ function generateRandomFoodPosition() {
 
   const foodX = randomNumGenerator();
   const foodY = randomNumGenerator();
-  // console.log(foodX, foodY);
+
   if (usedFields.some(arr => arr[0] === foodY && arr[1] === foodX)) {
     console.log('AGAIN');
     generateRandomFoodPosition();
   } else {
     const result = { x: foodX, y: foodY };
     helper.foodPosition = result;
-    // createPiece(result, 'food');
   }
 }
 // ---------------------------------------------------------- //
@@ -52,9 +51,14 @@ function displayLevel() {
     helper.points += 500;
     level.textContent = Math.ceil(helper.level - 1);
   } else {
-    // helper.level++;
     level.textContent = Math.ceil(helper.level - 1);
   }
+}
+// ---------------------------------------------------------- //
+function gameOver(msg) {
+  console.log(
+    `Game Over! You ${msg}! You had ${helper.points} points ! Press restart button to play again!`
+  );
 }
 // ---------------------------------------------------------- //
 // helper object containing game information
@@ -65,12 +69,10 @@ const helper = {
   level: 2,
   timeSinceLastRender: 0,
   currentPoss: { x: 0, y: 0 },
-  start: false,
   foodPosition: { x: 0, y: 0 },
-  test: false,
 };
 // ---------------------------------------------------------- //
-
+// initial call for food placement
 generateRandomFoodPosition();
 
 function updateSnake() {
@@ -84,9 +86,11 @@ function updateSnake() {
   // board edges check
   if (newHead.x < 1 || newHead.x > 15 || newHead.y < 1 || newHead.y > 15) {
     helper.isGameOver = true;
-    console.log('game over');
+    gameOver('hit the wall');
+    removeEventListeners();
     return;
   }
+
   // self collision check (getFieldsIds is helper function that returns all coordinates of the fields occupied with the snake)
   const usedFields = getFieldIds('snake');
 
@@ -95,15 +99,15 @@ function updateSnake() {
       position => position[1] === newHead.x && position[0] === newHead.y
     )
   ) {
-    console.log('COLLISION');
     helper.isGameOver = true;
+    gameOver('collided with your own body');
+    removeEventListeners();
   }
   // food check
   if (
     helper.foodPosition.x === newHead.x &&
     helper.foodPosition.y === newHead.y
   ) {
-    console.log('FOOD');
     helper.moves.push(helper.foodPosition);
     generateRandomFoodPosition();
     helper.points += 100;
@@ -114,12 +118,13 @@ function updateSnake() {
 }
 
 function renderSnake() {
+  // clear board
   grid.innerHTML = '';
-
+  // paint snake for every item in the helper.moves array
   helper.moves.forEach(element => {
     createPiece(element, 'snake');
   });
-
+  // paint food on the board
   createPiece(helper.foodPosition, 'food');
   displayScore();
   displayLevel();
@@ -131,7 +136,8 @@ function mainGameLoop(timeStamp) {
   if (helper.isGameOver) return;
 
   requestAnimationFrame(mainGameLoop);
-  const secondsSinceLastRender = (timeStamp - helper.timeSinceLastRender) / 400;
+  const secondsSinceLastRender = (timeStamp - helper.timeSinceLastRender) / 500;
+
   if (secondsSinceLastRender < 1 / helper.level) return;
   helper.timeSinceLastRender = timeStamp;
 
@@ -146,9 +152,8 @@ function nextFrame() {
   requestAnimationFrame(mainGameLoop);
 }
 function moveUp(e) {
-  // console.log(e.key);
   if (e.key !== 'ArrowUp') return;
-  if (helper.isGameOver) {
+  if (helper.isGameOver && helper.points === 0) {
     helper.isGameOver = false;
     requestAnimationFrame(mainGameLoop);
   }
@@ -159,7 +164,7 @@ function moveUp(e) {
 
 function moveDown(e) {
   if (e.key !== 'ArrowDown') return;
-  if (helper.isGameOver) {
+  if (helper.isGameOver && helper.points === 0) {
     helper.isGameOver = false;
     requestAnimationFrame(mainGameLoop);
   }
@@ -170,7 +175,7 @@ function moveDown(e) {
 
 function moveLeft(e) {
   if (e.key !== 'ArrowLeft') return;
-  if (helper.isGameOver) {
+  if (helper.isGameOver && helper.points === 0) {
     helper.isGameOver = false;
     requestAnimationFrame(mainGameLoop);
   }
@@ -180,7 +185,7 @@ function moveLeft(e) {
 }
 function moveRight(e) {
   if (e.key !== 'ArrowRight') return;
-  if (helper.isGameOver) {
+  if (helper.isGameOver && helper.points === 0) {
     helper.isGameOver = false;
     requestAnimationFrame(mainGameLoop);
   }
@@ -197,3 +202,10 @@ addEventListener('keydown', moveUp);
 addEventListener('keydown', moveDown);
 addEventListener('keydown', moveLeft);
 addEventListener('keydown', moveRight);
+
+function removeEventListeners() {
+  removeEventListener('keydown', moveUp);
+  removeEventListener('keydown', moveDown);
+  removeEventListener('keydown', moveLeft);
+  removeEventListener('keydown', moveRight);
+}
